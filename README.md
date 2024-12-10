@@ -1,6 +1,7 @@
 # Exploring Power Outages + Intentional Attacks
 
 Michelle Hong
+
 This is a project from DSC 80: Practice and Application of Data Science, exploring data regarding power outages.
 
 
@@ -9,15 +10,15 @@ In this project, we will be exploring a power outage dataset and focusing on int
 
 This dataset contains information regarding 1500+ power outages across the US, from 2000-2016. It contains other information, such as the state it occurred in, the cause of the power outage, the state's real GSP that year, etc.. This project focuses on predicting if the cause category of an outage was an intentional attack or not. We also explore other aspects about power outages, such as looking at missingness in the dataset, or plotting different interesting distributions of data. This dataset and question are important to note because power outages affect entire communities, and especially as a Californian, we have experienced many. Additionally, intentional attacks causing power outages can harm millions of people, and different areas may be affected differently. There are 1534 rows of data, and 56 columns (but we will be keeping 8 and creating a new one).
 
-- `US State`: The state that the power outage occurred in
-- `Climate Category`: The climate category during the outage (normal, cold, or warm) (str)
-- `Cause Category`: The reason for the power outage (str)
-- `Outage Duration`: Duration of the power outage in minutes (int)
-- `Demand Loss`: The amount of peak demand loss in Megawatts (int)
-- `Customers Affected`: The number of customers affected by power outage (int)
-- `Population`: Population at the given US state in a year (int)
-- `Popden Rural`: Population density of the urban areas (persons per square mile) (float)
-- `Attack`: Whether the cause of the outage was an intentional attack (bool)
+- `US State:` The state that the power outage occurred in
+- `Climate Category:` The climate category during the outage (normal, cold, or warm) (str)
+- `Cause Category:` The reason for the power outage (str)
+- `Outage Duration:` Duration of the power outage in minutes (int)
+- `Demand Loss:` The amount of peak demand loss in Megawatts (int)
+- `Customers Affected:` The number of customers affected by power outage (int)
+- `Population:` Population at the given US state in a year (int)
+- `Popden Rural:` Population density of the urban areas (persons per square mile) (float)
+- `Attack:` Whether the cause of the outage was an intentional attack (bool)
 
 ## Data Cleaning and Exploratory Data Analysis
 ### Data Cleaning
@@ -101,6 +102,14 @@ Empirical Distribution:
   frameborder="0"
 ></iframe>
 
+Separated by State:
+<iframe
+  src="assets/missingness_by_state.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 ## Hypothesis Testing
 Are the demand losses from California and Washington the same? Do they come from the same population, or is one bigger than the other?
 Null: "Demand Loss Mw" of California or Washington come from the same distribution 
@@ -116,7 +125,8 @@ We fail to reject that they come from the same population, with a p-value of 0.1
 ></iframe>
 
 ## Framing a Prediction Problem
-I will predict if a power outage is an intentional attack or not. We will be performing binary classification. I chose to predict if a power outage is an intentional attack or not because there were a lot of outages classified as intentional attacks, and I think it is an interesting topic. I will be using F-score instead of accuracy because only 27% of the cause categories in my dataset are intentional attacks. Accuracy wouldn't be a good measure due to the disparity of the groups sizes. F-score is useful when data is imbalanced and takes into consideration False Negatives and False Positives (and not just True Positives).
+I will predict if a power outage is an intentional attack or not. We will be performing binary classification. I chose to predict if a power outage is an intentional attack or not because there were a lot of outages classified as intentional attacks, and I think it is an interesting topic. I will be using F-score instead of accuracy because only 27% of the cause categories in my dataset are intentional attacks (but still will show the accuracy). Accuracy wouldn't be a good measure due to the disparity of the groups sizes. F-score is useful when data is imbalanced and takes into consideration False Negatives and False Positives (and not just True Positives).
+- Even though we will be focusing on F-score, I will still include accuracy. We want it to be over 73% because the dumbest model (which would predict not "intentional attack" 100% of the time) would have an accuracy of 73%, which is meaningless.
 
 ## Baseline Model
 To predict if a power outage is an intentional attack, we will fit a `DecisionTreeClassifier()`. My model uses the columns:
@@ -146,4 +156,20 @@ Using a RandomForestClassifier() over a DecisionTreeClassifier() was beneficial 
 
 
 ## Fairness Analysis
-Does this model perform fairly for 
+Does this model perform fairly for  higher/lower values of `Popden Rural`? We will use the mean of the entire dataset's `Popden Rural` column as a threshold to split values into high and low Popden Rural groups.
+- Group X: Popden Rural > `outages["Popden Rural"].mean()` (39.47349081364819)
+- Group Y: Popden Rural <= 39.47349081364819
+- Null Hypothesis: Our model is fair. Its accuracy for lower and higher rural population densities are roughly the same, and any differences are due to random chance.
+- Alternative Hypothesis: Our model is unfair. The accuracy for rural communities with higher population densities is higher than in rural areas with less dense populations.
+- Evaluation Metric: Accuracy
+- Test statistic: Differences in accuracy
+- Significance level: p = 0.05
+- P-value: 0.412
+- **Conclusion**: With a p-value that is greater than 0.05, we are unable to reject the null. This means that we don't have significant information to prove that our model performs unequally between higher/lower Popden Rural groups. This meas that it likely achieves Demographic Parity.
+
+<iframe
+  src="assets/fairness.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
