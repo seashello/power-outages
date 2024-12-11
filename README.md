@@ -8,21 +8,21 @@ This is a project from DSC 80: Practice and Application of Data Science, explori
 ## Introduction
 In this project, we will be exploring a power outage dataset across the US and focusing on intentional attacks.
 
-This dataset contains information regarding 1500+ power outages across the US, from 2000-2016. It contains a lot of other information, such as the state it occurred in, the cause of the power outage, the state's real GSP that year, etc.. 
+We will be working with a DataFrame, `outages`. This dataset contains information regarding 1500+ power outages across the US, from 2000-2016. It contains a lot of other information, such as the state it occurred in, the cause of the power outage, the state's real GSP that year, etc.. 
 
-This project focuses on predicting if the cause category of an outage was an intentional attack or not. We also explore other aspects about power outages, such as looking at missingness in the dataset, or plotting different interesting distributions of data. 
+This project focuses on predicting if the cause category of an outage was an intentional attack or not. We also will explore other aspects about power outages, such as looking at missingness in the dataset, or plotting different interesting distributions of data. 
 
 This dataset and question are important to note because power outages affect entire communities, and especially as a Californian, we have experienced many. Additionally, intentional attacks causing power outages can harm millions of people, and different areas may be affected differently. It's crucial to understand why they happen, and be able to predict the cause (so that specific areas can improve security). There are 1534 rows of data, and 56 columns (but we will be keeping 8 and creating a new one).
 
-- `US State:` The state that the power outage occurred in
-- `Climate Category:` The climate category during the outage (normal, cold, or warm) (str)
-- `Cause Category:` The reason for the power outage (str)
-- `Outage Duration:` Duration of the power outage in minutes (int)
-- `Demand Loss:` The amount of peak demand loss in Megawatts (int)
-- `Customers Affected:` The number of customers affected by power outage (int)
-- `Population:` Population at the given US state in a year (int)
-- `Popden Rural:` Population density of the urban areas (persons per square mile) (float)
-- `Attack:` Whether the cause of the outage was an intentional attack (bool)
+- `US State:` The state that the power outage occurred in (`str`)
+- `Climate Category:` The climate category during the outage (normal, cold, or warm) (`str`)
+- `Cause Category:` The reason for the power outage (`str`)
+- `Outage Duration:` Duration of the power outage in minutes (`int`)
+- `Demand Loss:` The amount of peak demand loss in Megawatts (`int`)
+- `Customers Affected:` The number of customers affected by power outage (`int`)
+- `Population:` Population at the given US state in a year (`int`)
+- `Popden Rural:` Population density of the urban areas (persons per square mile) (`float`)
+- `Attack:` Whether the cause of the outage was an intentional attack (`bool`)
 
 ## Data Cleaning and Exploratory Data Analysis
 ### Data Cleaning
@@ -31,10 +31,10 @@ The original dataset file was formatted oddly, with rows and columns in the Goog
 Changes:
 - I fixed the format to include just the pure data
 - I changed the column names for better readability (such as turning "CAUSE.CATEGORY" into "Cause Category")
-- I kept only the columns that we care about (this project focuses on predicting if a power outage was caused by an intentional attack, so I kept the columns that seemed correlated to this)
+- I kept only the columns that we care about (this project focuses on predicting if a power outage was caused by an intentional attack, so I kept the columns that seemed correlated to this based off my intuition)
 - I then added the column `Attack`, whose value is `True` if the `Cause Category` was "intentional attack".
 
-`outages.head()`
+`print(outages.head())`
 
 |   Obs | US State   | Climate Category   | Cause Category     |   Outage Duration |   Demand Loss |   Customers Affected |   Population |   Popden Rural | Attack   |
 |------:|:-----------|:-------------------|:-------------------|------------------:|--------------:|---------------------:|-------------:|---------------:|:---------|
@@ -46,7 +46,7 @@ Changes:
 
 ### Univariate Analysis
 Let's look at the distribution of outage durations. It seems strongly skewed right, with just a couple of outages lasting very long, but an average power outage lasting 43.76 hours.
-- The dotted red line represents the average outage duration across all outages in the dataset.
+- The dotted red line represents the average outage duration across all outages in the dataset `outages`.
 <iframe
   src="assets/duration_dist.html"
   width="800"
@@ -57,30 +57,30 @@ Let's look at the distribution of outage durations. It seems strongly skewed rig
 Let's look at the number of power outages per state. It appears that California by far has had the most power outages in total from 2000-2016!
 <iframe
   src="assets/states_outage_nums.html"
-  width="700"
+  width="1000"
   height="600"
   frameborder="0"
 ></iframe>
 
 ### Bivariate Analysis
-California has a lot of power outages, but, is this just because it has the biggest population? Let's put it to scale by finding the number of outages per person so we can compare states to each other at the same scale. We find that California doesn't have the biggest number of outages, per person (over the years); It seems like Delaware does!
+California has a lot of power outages, but, is this just because it has the biggest population? Let's put it to scale by finding the number of outages per person so we can compare states to each other at the same scale. We find that California doesn't have the biggest number of outages, per person (over the years); it seems like Delaware does!
 <iframe
   src="assets/states_outage_pop.html"
-  width="800"
+  width="1000"
   height="600"
   frameborder="0"
 ></iframe>
 
-Also, let's look more closely at our `Attack` column. Do intentional attacks appear to happen evenly throughout states? Do specific states tend to have either really high or really low levels of intentional attacks, or is it closer to the average? 
+Also, let's look more closely at our "Attack" column. Do intentional attacks appear to happen evenly throughout states? Do specific states tend to have either really high or really low levels of intentional attacks, or is it closer to the average? 
 
-This plot shows the "purity" of the `Attack` column with each state. Each value represents how far the proportion of intentional attacks are from 0.5. This means that larger values either have a high proportion of "intentional attacks", or a high proportion of the other (non intentional attacks), and their cause category is more "pure". Smaller values represent that the cause of power outages in that state (intentional attacks vs. other) are around equal.
+This plot shows the "purity" of the "Attack" column with each state. Each value represents how far the proportion of intentional attacks are from 0.5. This means that larger values either have a high proportion of "intentional attacks", or a high proportion of the other (non intentional attacks), and their cause category is more "pure". Smaller values represent that the cause of power outages in that state (intentional attacks vs. other) are around equal.
 - The dotted red line is at y=0.25. Values above it mean that the state had 75% or more outages that were intentional attacks (or not intentional attacks).
 
 It appears that a big chunk of the states either have super high or super low amounts of intentional attacks. There are a lot of values that are 0.5 (I will call this "completely pure," meaning either all their power outages were intentional attacks, or none of them were.). In fact, 10 states, or 20% of the states, are "completely pure", with a value of 0.5. This means that there may be some correlation between the state, and whether a power outage were an intentional attack. 
 
 <iframe
   src="assets/attack_purity.html"
-  width="700"
+  width="1000"
   height="600"
   frameborder="0"
 ></iframe>
@@ -105,10 +105,10 @@ In all of these measurements, the average value is greater when it's not an inte
 
 ## Assessment of Missingness
 ### NMAR Analysis
-My data has a lot of missing values. Not missing at random (NMAR) means that there is missingness based on the values itself. Columns such as "Demand Loss Mw" and "Customers Affected" may be NMAR... For example, if the values were too big, or too small, it might've been harder to record, and may not have been reported in the first place. We would need to understand more about the situation to see if it's really NMAR (for example, learn more about how they measure demand loss or count the number of customers affected, and determine if it is harder to measure for certain scenarios)
+My data has a lot of missing values. Not missing at random (NMAR) means that there is missingness based on the values itself. Columns such as "Demand Loss Mw" and "Customers Affected" may be NMAR... For example, if the values were too big, or too small, it might've been harder to record, and may not have been reported in the first place. We would need to understand more about the situation to see if it's really NMAR (for example, learn more about how they measure demand loss or count the number of customers affected, and determine if it is harder to measure for specific scenarios)
 
 ### Missingness Dependency
-Despite this, I wanted to run some tests to determine if those columns may be MAR (Missing at Random) based on another column. I reasoned that if there is a greater rural population density, "Demand Loss" may tend to be higher. There may be a relationship between them.
+Despite this, I wanted to run some tests to determine if those columns may be MAR (Missing at Random) based on another column. I reasoned that if there is a greater rural population density ("Popden Rural"), "Demand Loss" may tend to be higher. There may be a relationship between them.
 
 Does the missingness of "Demand Loss" depend on "US State"? 
 - Null Hypothesis: the distribution of 'US State' when 'Demand Loss' is missing is the same as the distribution of 'US State' when 'Demand Loss' is not missing.
@@ -127,9 +127,10 @@ Empirical Distribution:
 
 Missingness Counts Separated by State:
 - Keep in mind that different states have different numbers of power outages. To interpret this graph, don't compare the distributions of states to each other, only compare the red and blue bars within each state.
+- Most of the states don't have even amounts of missing and non missing Demand Loss.
 <iframe
   src="assets/missingness_by_state.html"
-  width="800"
+  width="1000"
   height="600"
   frameborder="0"
 ></iframe>
